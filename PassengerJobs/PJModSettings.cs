@@ -27,6 +27,10 @@ namespace PassengerJobs
         [Draw("Coach lights require loco power", Tooltip = "Main fuse on or dynamo running")]
         public bool CoachLightsRequirePower = true;
 
+        [Draw("Allow CCL coaches to spawn alone if any part of the trainset is disabled", Tooltip = "In case a part of a trainset is disabled by CCL, \n" +
+            "whether to allow spawning parts of it by themselves or require the whole trainset to be enabled")]
+        public bool AllowCCLTrainsetAlone = false;
+
 #if DEBUG
         [Draw("Reload rural stations config")]
         public bool ReloadStations = false;
