@@ -23,7 +23,7 @@ namespace PassengerJobs
             {
                 if (_loaded && s_mod != null) return s_mod.Active;
                 TryLoad();
-                return _loaded;
+                return _loaded && s_mod != null && s_mod.Active;
             }
         }
 
@@ -44,7 +44,10 @@ namespace PassengerJobs
             s_trainsetEnabled = manager.GetMethod("IsTrainsetEnabled");
             s_liveryEnabled = manager.GetMethod("IsCarLiveryEnabled");
 
-            var extendedPaymentData = ccl.Assembly.GetType("CCL.Importer.ExtendedPaymentData");
+            var extendedPaymentData = s_mod.Assembly.GetType("CCL.Importer.ExtendedPaymentData");
+
+            if (extendedPaymentData == null) return;
+
             s_getExtendedPaymentData = extendedPaymentData.GetMethod("ForSingleCargoType");
 
             _loaded = true;
