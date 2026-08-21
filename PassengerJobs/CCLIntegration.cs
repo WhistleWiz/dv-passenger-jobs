@@ -1,6 +1,8 @@
 ﻿using DV.ThingTypes;
 using PassengerJobs.Generation;
+using PassengerJobs.Injectors;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityModManagerNet;
 
@@ -12,6 +14,7 @@ namespace PassengerJobs
         private static MethodInfo? s_getTrainset;
         private static MethodInfo? s_trainsetEnabled;
         private static MethodInfo? s_liveryEnabled;
+        private static MethodInfo? s_getExtendedPaymentData;
 
         public static bool Loaded
         {
@@ -35,6 +38,10 @@ namespace PassengerJobs
             s_getTrainset = manager.GetMethod("GetTrainsetForLivery");
             s_trainsetEnabled = manager.GetMethod("IsTrainsetEnabled");
             s_liveryEnabled = manager.GetMethod("IsCarLiveryEnabled");
+
+            var extendedPaymentData = ccl.Assembly.GetType("CCL.Importer.ExtendedPaymentData");
+            s_getExtendedPaymentData = extendedPaymentData.GetMethod("ForSingleCargoType");
+
             _loaded = true;
         }
 
@@ -98,6 +105,13 @@ namespace PassengerJobs
             var value = (int)f.GetValue(livery);
 
             return value > 0 ? value : int.MaxValue;
+        }
+
+        public static PaymentCalculationData GetModifiedData(PaymentCalculationData original, List<TrainCarLivery> jobCarTypes)
+        {
+            if (!Loaded || s_getExtendedPaymentData == null) return original;
+
+            return (PaymentCalculationData)s_getExtendedPaymentData.Invoke(null, new object[] { original, jobCarTypes, CargoInjector.PassengerCargo.v1 });
         }
     }
 }
