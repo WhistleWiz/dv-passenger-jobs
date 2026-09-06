@@ -105,7 +105,7 @@ namespace PassengerJobs
                 GUILayout.Label("<color=\"red\">Settings are locked while a multiplayer session is active.</color>");
             }
 
-            if (GUILayout.Button("Reload Consists"))
+            if (GUILayout.Button("Reload Consists", GUILayout.MaxWidth(400)))
             {
                 ConsistManager.LoadConsists();
             }

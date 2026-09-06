@@ -33,7 +33,7 @@ namespace PassengerJobs
         [Draw("Enable Consists", Tooltip = "Consists are preset combinations of liveries")]
         public bool UseConsists = true;
         [Draw("Consist Generation Chance", Tooltip = "The chance to use a consist instead of regular generation",
-            InvisibleOn = "UseConsistGeneration|false", Type = DrawType.Slider, Min = 0, Max = 1)]
+            InvisibleOn = "UseConsists|false", Type = DrawType.Slider, Min = 0, Max = 1)]
         public float ConsistGenChance = 0.5f;
 
 #if DEBUG
