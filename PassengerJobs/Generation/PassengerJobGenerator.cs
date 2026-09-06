@@ -258,44 +258,54 @@ namespace PassengerJobs.Generation
             double maxAllowedLength = Math.Min(startPlatform.Length, destinations.MinTrackLength);
             maxAllowedLength = (maxAllowedLength * LENGTH_MULTIPLIER) - WIGGLE_DISTANCE;
 
-            TrainCarLivery livery = ConsistManager.GetFilteredPassengerCars(routeType, maxAllowedLength).PickOne()!;
-
-            if (CCLIntegration.TryGetTrainset(livery, out var trainset) && CCLIntegration.IsTrainsetEnabled(trainset))
+            if (PJMain.Settings.UseConsists && ConsistManager.HasConsists(routeType) &&
+                UnityEngine.Random.Range(0, 1) <= PJMain.Settings.ConsistGenChance &&
+                ConsistManager.GetConsist(routeType, maxAllowedLength, out jobCarTypes))
             {
-                // Use the trainset itself directly. Length has already been checked, so it fits.
-                jobCarTypes = trainset.ToList();
                 randomOrientation = false;
-
-                // Check if it's possible to have more of the trainset spawn.
-                var count = CCLIntegration.GetMaxRepeatedSpawn(livery);
-                var current = 1;
-                var length = CarSpawner.Instance.GetTotalCarLiveriesLength(jobCarTypes, true);
-                var total = length + CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS + length;
-
-                while (total < maxAllowedLength && current < count)
-                {
-                    jobCarTypes.AddRange(trainset);
-                    current++;
-                    total += CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS + length;
-                }
+                Debug.Log($"Consist: {string.Join(", ", jobCarTypes.Select(x => x.id))}");
             }
             else
             {
-                // Regular single livery consist.
-                double carLength = CarSpawner.Instance.carLiveryToCarLength[livery];
-                int nTotalCars = (int)Math.Floor(maxAllowedLength / (carLength + CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS));
+                TrainCarLivery livery = ConsistManager.GetFilteredPassengerCars(routeType, maxAllowedLength).PickOne()!;
 
-                if (jobType == PassJobType.Local)
+                if (CCLIntegration.TryGetTrainset(livery, out var trainset) && CCLIntegration.IsTrainsetEnabled(trainset))
                 {
-                    nTotalCars = Math.Min(nTotalCars, MAX_REGIONAL_CARS);
-                }
-                else if (nTotalCars > 6)
-                {
-                    nTotalCars -= 2;
-                }
+                    // Use the trainset itself directly. Length has already been checked, so it fits.
+                    jobCarTypes = trainset.ToList();
+                    randomOrientation = false;
 
-                nTotalCars = Mathf.Min(nTotalCars, CCLIntegration.GetMaxRepeatedSpawn(livery), Controller.proceduralJobsRuleset.maxCarsPerJob);
-                jobCarTypes = Enumerable.Repeat(livery, nTotalCars).ToList();
+                    // Check if it's possible to have more of the trainset spawn.
+                    var count = CCLIntegration.GetMaxRepeatedSpawn(livery);
+                    var current = 1;
+                    var length = CarSpawner.Instance.GetTotalCarLiveriesLength(jobCarTypes, true);
+                    var total = length + CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS + length;
+
+                    while (total < maxAllowedLength && current < count)
+                    {
+                        jobCarTypes.AddRange(trainset);
+                        current++;
+                        total += CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS + length;
+                    }
+                }
+                else
+                {
+                    // Regular single livery consist.
+                    double carLength = CarSpawner.Instance.carLiveryToCarLength[livery];
+                    int nTotalCars = (int)Math.Floor(maxAllowedLength / (carLength + CarSpawner.SEPARATION_BETWEEN_TRAIN_CARS));
+
+                    if (jobType == PassJobType.Local)
+                    {
+                        nTotalCars = Math.Min(nTotalCars, MAX_REGIONAL_CARS);
+                    }
+                    else if (nTotalCars > 6)
+                    {
+                        nTotalCars -= 2;
+                    }
+
+                    nTotalCars = Mathf.Min(nTotalCars, CCLIntegration.GetMaxRepeatedSpawn(livery), Controller.proceduralJobsRuleset.maxCarsPerJob);
+                    jobCarTypes = Enumerable.Repeat(livery, nTotalCars).ToList();
+                }
             }
 
             var chainController = GenerateController(jobType, null, jobCarTypes, startPlatform, destinations, randomOrientation);

@@ -1,8 +1,5 @@
 ﻿using DV.Logic.Job;
-using DV.PointSet;
-using PassengerJobs.Generation;
 using PassengerJobs.Injectors;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;

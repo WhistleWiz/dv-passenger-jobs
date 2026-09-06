@@ -41,6 +41,8 @@ namespace PassengerJobs
 
             //PlatformManager.TryLoadSignLocations();
 
+            ConsistManager.LoadConsists();
+
             // Initialize settings
             ReloadSettings();
             //Settings.DoPurge = false;
@@ -94,7 +96,7 @@ namespace PassengerJobs
             Settings = UnityModManager.ModSettings.Load<PJModSettings>(ModEntry);
         }
 
-        static void DrawGUI( UnityModManager.ModEntry entry )
+        static void DrawGUI(UnityModManager.ModEntry entry)
         {
             Settings.Draw(entry);
 
@@ -102,9 +104,14 @@ namespace PassengerJobs
             {
                 GUILayout.Label("<color=\"red\">Settings are locked while a multiplayer session is active.</color>");
             }
+
+            if (GUILayout.Button("Reload Consists"))
+            {
+                ConsistManager.LoadConsists();
+            }
         }
 
-        static void SaveGUI( UnityModManager.ModEntry entry )
+        static void SaveGUI(UnityModManager.ModEntry entry)
         {
             Settings.Save(entry);
         }
